@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Role;
 import ru.job4j.service.RoleService;
 
+import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class RoleController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Role> create(@RequestBody Role role) {
+    public ResponseEntity<Role> create(@Valid @RequestBody Role role) {
         if (role.getName() == null) {
             throw new NullPointerException("Введите название роли!");
         }
@@ -52,7 +53,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Role> update(@RequestBody Role role) {
+    public ResponseEntity<Role> update(@Valid @RequestBody Role role) {
         if (role.getName() == null) {
             throw new NullPointerException("Введите название роли!");
         }
@@ -67,7 +68,7 @@ public class RoleController {
     }
 
     @PatchMapping("/rolePatch")
-    public ResponseEntity<Role> patchUser(@RequestBody Role role) throws InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<Role> patchUser(@Valid  @RequestBody Role role) throws InvocationTargetException, IllegalAccessException {
         var current = roleService.findById(role.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

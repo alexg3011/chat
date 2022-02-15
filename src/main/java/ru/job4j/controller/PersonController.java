@@ -14,6 +14,7 @@ import ru.job4j.service.PersonService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,7 +55,7 @@ public class PersonController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Person> signUp(@RequestBody Person person) {
+    public ResponseEntity<Person> signUp(@Valid @RequestBody Person person) {
         if (person.getName() == null
                 || person.getPassword() == null) {
             throw new NullPointerException("Не введены имя пользователя или пароль!");
@@ -70,7 +71,7 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
+    public ResponseEntity<Void> update(@Valid @RequestBody Person person) {
         if (person.getName() == null
                 || person.getPassword() == null) {
             throw new NullPointerException("Не введены имя пользователя или пароль!");
@@ -97,7 +98,7 @@ public class PersonController {
     }
 
     @PatchMapping("/userPatch")
-    public ResponseEntity<Person> patchUser(@RequestBody Person person) throws InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<Person> patchUser(@Valid @RequestBody Person person) throws InvocationTargetException, IllegalAccessException {
         var current = personService.findById(person.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

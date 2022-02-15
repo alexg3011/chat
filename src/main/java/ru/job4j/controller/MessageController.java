@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Message;
 import ru.job4j.service.MessageService;
 
+import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class MessageController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Message> create(@RequestBody Message message) {
+    public ResponseEntity<Message> create(@Valid @RequestBody Message message) {
         if (message.getText() == null) {
             throw new NullPointerException("Нельзя ввести пустое сообщение!");
         }
@@ -57,7 +58,7 @@ public class MessageController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<?> update(@RequestBody Message message) {
+    public ResponseEntity<?> update(@Valid @RequestBody Message message) {
         if (message.getText() == null) {
             throw new NullPointerException("Нельзя ввести пустое сообщение!");
         }
@@ -75,7 +76,7 @@ public class MessageController {
     }
 
     @PatchMapping("/massagePatch")
-    public ResponseEntity<Message> patchUser(@RequestBody Message message) throws InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<Message> patchUser(@Valid @RequestBody Message message) throws InvocationTargetException, IllegalAccessException {
         var current = messageService.findById(message.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

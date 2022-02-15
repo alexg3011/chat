@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Room;
 import ru.job4j.service.RoomService;
 
+import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class RoomController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Room> create(@RequestBody Room room) {
+    public ResponseEntity<Room> create(@Valid @RequestBody Room room) {
         if (room.getName() == null) {
             throw new NullPointerException("Не введено название комнаты");
         }
@@ -52,7 +53,7 @@ public class RoomController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Room room) {
+    public ResponseEntity<Void> update(@Valid @RequestBody Room room) {
         if (room.getName() == null) {
             throw new NullPointerException("Не введено название комнаты");
         }
@@ -67,7 +68,7 @@ public class RoomController {
     }
 
     @PatchMapping("/roomPatch")
-    public ResponseEntity<Room> patchUser(@RequestBody Room room) throws InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<Room> patchUser(@Valid @RequestBody Room room) throws InvocationTargetException, IllegalAccessException {
         var current = roomService.findById(room.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 

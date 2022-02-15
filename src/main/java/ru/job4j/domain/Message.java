@@ -1,6 +1,8 @@
 package ru.job4j.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -10,7 +12,9 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank(message = "Текст сообщения не должен быть пустым!")
     private String text;
+    @NotEmpty(message = "Дата не должна быть пустой!")
     private Timestamp created;
 
     @ManyToOne

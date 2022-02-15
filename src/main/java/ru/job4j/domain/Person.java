@@ -1,6 +1,9 @@
 package ru.job4j.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
@@ -9,7 +12,11 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank(message = "Имя не должно быть пустым!")
     private String name;
+    @NotBlank(message = "Пароль не должен быть пустой!")
+    @Size(min = 3, message
+            = "Минимальная длинна пароля 3 символа!")
     private String password;
 
     @ManyToOne

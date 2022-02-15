@@ -1,6 +1,7 @@
 package ru.job4j.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @Entity
@@ -9,6 +10,7 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank(message = "Название роли не должно быть пустым!")
     private String name;
 
     public static Role of(String name) {
