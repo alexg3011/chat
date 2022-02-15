@@ -10,16 +10,14 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private String email;
     private String password;
 
     @ManyToOne
     private Role role;
 
-    public static Person of(String name, String email, String password) {
+    public static Person of(String name, String password) {
         Person person = new Person();
         person.name = name;
-        person.email = email;
         person.password = password;
         return person;
     }
@@ -48,13 +46,6 @@ public class Person {
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public Role getRole() {
         return role;
