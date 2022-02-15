@@ -3,6 +3,7 @@ package ru.job4j.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Message;
 import ru.job4j.service.MessageService;
 
@@ -30,14 +31,17 @@ public class MessageController {
     @GetMapping("/{id}")
     public ResponseEntity<Message> findById(@PathVariable int id) {
         var message = this.messageService.findById(id);
+        HttpStatus httpStatus = message.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(
-                message.orElse(new Message()),
-                message.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
+                message.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Сообщение не найдено!")),
+                httpStatus);
     }
 
     @PostMapping("/")
     public ResponseEntity<Message> create(@RequestBody Message message) {
+        if (message.getText() == null) {
+            throw new NullPointerException("Нельзя ввести пустое сообщение!");
+        }
         return new ResponseEntity<>(
                 this.messageService.save(message),
                 HttpStatus.CREATED
@@ -46,6 +50,10 @@ public class MessageController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Message message) {
+        if (message.getText() == null) {
+            throw new NullPointerException("Нельзя ввести пустое сообщение!");
+        }
+
         this.messageService.save(message);
         return ResponseEntity.ok().build();
     }

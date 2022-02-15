@@ -3,6 +3,7 @@ package ru.job4j.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Room;
 import ru.job4j.service.RoomService;
 
@@ -29,15 +30,18 @@ public class RoomController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Room> findById(@PathVariable int id) {
-        var person = this.roomService.findById(id);
-        return new ResponseEntity<>(
-                person.orElse(new Room()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
+        var room = this.roomService.findById(id);
+        HttpStatus httpStatus = room.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<Room>(
+                room.orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Комната не найдена")), httpStatus);
     }
 
     @PostMapping("/")
     public ResponseEntity<Room> create(@RequestBody Room room) {
+        if (room.getName() == null) {
+            throw new NullPointerException("Не введено название комнаты");
+        }
         return new ResponseEntity<>(
                 this.roomService.save(room),
                 HttpStatus.CREATED
@@ -46,6 +50,9 @@ public class RoomController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Room room) {
+        if (room.getName() == null) {
+            throw new NullPointerException("Не введено название комнаты");
+        }
         this.roomService.save(room);
         return ResponseEntity.ok().build();
     }

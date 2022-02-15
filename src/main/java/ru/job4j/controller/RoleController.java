@@ -3,6 +3,7 @@ package ru.job4j.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Role;
 import ru.job4j.service.RoleService;
 
@@ -30,14 +31,17 @@ public class RoleController {
     @GetMapping("/{id}")
     public ResponseEntity<Role> findById(@PathVariable int id) {
         var role = roleService.findById(id);
-        return new ResponseEntity<>(
-                role.orElse(new Role()),
-                role.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
+        HttpStatus httpStatus = role.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<Role>(
+                role.orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Роль не найдена!")), httpStatus);
     }
 
     @PostMapping("/")
     public ResponseEntity<Role> create(@RequestBody Role role) {
+        if (role.getName() == null) {
+            throw new NullPointerException("Введите название роли!");
+        }
         return new ResponseEntity<>(
                 roleService.save(role),
                 HttpStatus.CREATED
@@ -46,6 +50,9 @@ public class RoleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Role> update(@RequestBody Role role) {
+        if (role.getName() == null) {
+            throw new NullPointerException("Введите название роли!");
+        }
         this.roleService.save(role);
         return ResponseEntity.ok().build();
     }
