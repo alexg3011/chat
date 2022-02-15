@@ -1,13 +1,16 @@
 package ru.job4j.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Message;
 import ru.job4j.service.MessageService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -29,12 +32,15 @@ public class MessageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Message> findById(@PathVariable int id) {
-        var message = this.messageService.findById(id);
-        HttpStatus httpStatus = message.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
-        return new ResponseEntity<>(
-                message.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Сообщение не найдено!")),
-                httpStatus);
+    public ResponseEntity<?> findById(@PathVariable int id) {
+        Message message = messageService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Сообщение не найдено!"
+                ));
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(message.getText().length())
+                .body(message.getText());
     }
 
     @PostMapping("/")
@@ -42,20 +48,21 @@ public class MessageController {
         if (message.getText() == null) {
             throw new NullPointerException("Нельзя ввести пустое сообщение!");
         }
-        return new ResponseEntity<>(
-                this.messageService.save(message),
-                HttpStatus.CREATED
-        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(message);
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Message message) {
+    public ResponseEntity<?> update(@RequestBody Message message) {
         if (message.getText() == null) {
             throw new NullPointerException("Нельзя ввести пустое сообщение!");
         }
 
         this.messageService.save(message);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(message);
     }
 
     @DeleteMapping("/{id}")

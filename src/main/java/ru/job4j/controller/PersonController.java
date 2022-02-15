@@ -84,7 +84,7 @@ public class PersonController {
     @ExceptionHandler(value = { IllegalArgumentException.class })
     public void exceptionHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-        response.setContentType("application/json");
+        response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() { {
             put("message", e.getMessage());
             put("type", e.getClass());
