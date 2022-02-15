@@ -7,6 +7,9 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Room;
 import ru.job4j.service.RoomService;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -61,5 +64,36 @@ public class RoomController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         this.roomService.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/roomPatch")
+    public ResponseEntity<Room> patchUser(@RequestBody Room room) throws InvocationTargetException, IllegalAccessException {
+        var current = roomService.findById(room.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var methods = current.getClass().getDeclaredMethods();
+        var namePerMethod = new HashMap<String, Method>();
+        for (var method : methods) {
+            var name = method.getName();
+            if (name.startsWith("get") || name.startsWith("set")) {
+                namePerMethod.put(name, method);
+            }
+        }
+        for (var name : namePerMethod.keySet()) {
+            if (name.startsWith("get")) {
+                var getMethod = namePerMethod.get(name);
+                var setMethod = namePerMethod.get(name.replace("get", "set"));
+                if (setMethod == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid properties mapping");
+                }
+                var newValue = getMethod.invoke(room);
+                if (newValue != null) {
+                    setMethod.invoke(current, newValue);
+                }
+            }
+        }
+        return new ResponseEntity<>(
+                roomService.save(current), HttpStatus.OK
+        );
     }
 }

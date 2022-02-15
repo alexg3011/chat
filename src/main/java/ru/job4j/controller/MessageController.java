@@ -8,6 +8,9 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Message;
 import ru.job4j.service.MessageService;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -69,5 +72,36 @@ public class MessageController {
     public ResponseEntity<Void> delete(@PathVariable int id) {
         this.messageService.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/massagePatch")
+    public ResponseEntity<Message> patchUser(@RequestBody Message message) throws InvocationTargetException, IllegalAccessException {
+        var current = messageService.findById(message.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var methods = current.getClass().getDeclaredMethods();
+        var namePerMethod = new HashMap<String, Method>();
+        for (var method : methods) {
+            var name = method.getName();
+            if (name.startsWith("get") || name.startsWith("set")) {
+                namePerMethod.put(name, method);
+            }
+        }
+        for (var name : namePerMethod.keySet()) {
+            if (name.startsWith("get")) {
+                var getMethod = namePerMethod.get(name);
+                var setMethod = namePerMethod.get(name.replace("get", "set"));
+                if (setMethod == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid properties mapping");
+                }
+                var newValue = getMethod.invoke(message);
+                if (newValue != null) {
+                    setMethod.invoke(current, newValue);
+                }
+            }
+        }
+        return new ResponseEntity<>(
+                messageService.save(current), HttpStatus.OK
+        );
     }
 }
