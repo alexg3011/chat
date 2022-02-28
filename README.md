@@ -10,3 +10,5 @@
 PostgreSQL
 Maven
 Tomcat
+
+Email для связи: alexandrg3011@gmail.com
